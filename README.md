@@ -1,46 +1,38 @@
-# Quantum Battery Dispatch (v0.1)
+# Quantum Battery Dispatch (Stage 1)
 
-This repository contains a **quantum-native optimization engine** for battery
-charge / discharge scheduling.
+A **quantum-native optimization engine** for battery charge / discharge
+scheduling. The core decision problem is formulated as a **QUBO (Quadratic
+Unconstrained Binary Optimization)** and solved using **QAOA** via Qiskit, with
+an exact classical verifier on the side.
 
-The core decision problem is formulated as a **QUBO (Quadratic Unconstrained
-Binary Optimization)** and solved using **QAOA** via Qiskit, with a classical
-brute-force solver used for verification on small instances.
+## What changed in this drop
+- The quantum subproblem is now a compact dispatch selector (≤20 binaries).
+- Energy feasibility is enforced via binary budget constraints (no per-hour
+  SOC variables yet).
+- Demand-charge effects are represented with a peak-shaving proxy in the QUBO
+  and then evaluated exactly in the classical scoring layer.
 
-## What this does
-Given:
-- hourly electricity prices
-- a battery with limited energy and power
-- an initial state of charge
+This keeps the quantum layer focused on the hard combinatorial choice while the
+classical layer computes the precise bill.
 
-The system computes an **optimal dispatch schedule**:
-- CHARGE
-- DISCHARGE
-- IDLE
+## Inputs
+- Hourly electricity prices
+- Baseline demand per hour
+- Battery limits: energy capacity ``E_MAX``, power ``P_MAX``, initial state of
+  charge ``SOC_0``
 
-The quantum solver directly participates in selecting the schedule.
-
-## Why quantum?
-Battery dispatch decisions are:
-- discrete
-- globally coupled in time
-- constraint-heavy
-
-This makes them a natural fit for quantum optimization methods, rather than
-continuous relaxations or heuristic rules.
+## Outputs
+- Binary discharge (and optional charge) decisions per hour
+- Classical post-processing with true net demand, peak kW, energy cost, and
+  demand charge
 
 ## Repository structure
-#### quantum-battery/
-#### data.py # Hardcoded example scenario
-#### qubo.py # QUBO construction (quantum-native core)
-#### solve_classical.py # Classical simulated annealing solver for QUBOs
-#### solve_quantum.py # QAOA-based solver using Qiskit (optional)
-#### run.py # Entry point
-#### README.md
-
-## Status
-- v0.2: explicit demand-charge modeling with a peak variable
-- Next: longer horizons and rolling optimization
+- `data.py` — Hardcoded example scenario
+- `qubo.py` — QUBO construction (quantum-native core)
+- `solve_classical.py` — Classical simulated annealing solver for QUBOs
+- `solve_quantum.py` — QAOA-based solver using Qiskit (optional)
+- `run.py` — Entry point
+- `README.md`
 
 ## Running the demo
 The classical path has **no third-party dependencies**; invoke it directly:
@@ -54,4 +46,3 @@ quantum step is skipped with a clear message while the classical result is
 still produced.
 
 This is an early research-driven prototype.
-
