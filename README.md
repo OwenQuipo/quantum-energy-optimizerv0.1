@@ -6,11 +6,17 @@ Unconstrained Binary Optimization)** and solved using **QAOA** via Qiskit, with
 an exact classical verifier on the side.
 
 ## What changed in this drop
-- The quantum subproblem is now a compact dispatch selector (≤20 binaries).
+- The quantum subproblem is now a compact multi-level dispatch selector
+  (≤20 binaries, half/full discharge bits per hour).
 - Energy feasibility is enforced via binary budget constraints (no per-hour
-  SOC variables yet).
+  SOC variables yet) and mirrored by a brute-force classical verifier.
 - Demand-charge effects are represented with a peak-shaving proxy in the QUBO
-  and then evaluated exactly in the classical scoring layer.
+  and then evaluated exactly in the classical scoring layer (with optional
+  peak-hour windows and prior peaks).
+- Rolling-horizon support: optimize over a window, execute the first step, and
+  re-plan with the updated state of charge.
+- Added a greedy baseline, brute-force ground truth, and per-hour
+  explainability hooks.
 
 This keeps the quantum layer focused on the hard combinatorial choice while the
 classical layer computes the precise bill.

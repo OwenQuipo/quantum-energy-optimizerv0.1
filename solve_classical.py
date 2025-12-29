@@ -6,7 +6,7 @@ import random
 from typing import Callable, List, Optional, Sequence, Tuple
 
 
-def _energy(Q: Sequence[Sequence[float]], x: Sequence[int]) -> float:
+def compute_qubo_energy(Q: Sequence[Sequence[float]], x: Sequence[int]) -> float:
     """Compute the QUBO objective value for assignment ``x``."""
 
     total = 0.0
@@ -39,7 +39,7 @@ def solve_simulated_annealing(
     rng = random.Random(seed)
 
     current = [rng.randrange(2) for _ in range(n)]
-    current_energy = _energy(Q, current)
+    current_energy = compute_qubo_energy(Q, current)
     best = list(current)
     best_energy = current_energy
 
@@ -48,7 +48,7 @@ def solve_simulated_annealing(
         idx = rng.randrange(n)
         candidate = list(current)
         candidate[idx] = 1 - candidate[idx]
-        candidate_energy = _energy(Q, candidate)
+        candidate_energy = compute_qubo_energy(Q, candidate)
 
         delta = candidate_energy - current_energy
         if delta <= 0 or rng.random() < math.exp(-delta / max(T, 1e-9)):
