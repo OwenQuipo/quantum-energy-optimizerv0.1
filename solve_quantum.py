@@ -1,6 +1,8 @@
 # solve_quantum.py
 from __future__ import annotations
 
+import sys
+from pathlib import Path
 from typing import Dict, Sequence, Tuple
 
 
@@ -22,6 +24,42 @@ def _workload_for_budget(num_vars: int, time_budget_s: float) -> Tuple[int, int,
     return reps, shots, maxiter
 
 
+def _maybe_extend_sys_path_from_local_venv() -> None:
+    """If a local ``venv`` exists, add its site-packages to ``sys.path``."""
+
+    root = Path(__file__).resolve().parent
+    for candidate in sorted(root.glob("venv/lib/python*/site-packages")):
+        path_str = str(candidate)
+        if path_str not in sys.path:
+            sys.path.insert(0, path_str)
+
+
+def _load_qiskit_components():
+    """Import Qiskit pieces, retrying with a local venv path if needed."""
+
+    try:
+        from qiskit_algorithms import QAOA
+        from qiskit_algorithms.optimizers import COBYLA
+        from qiskit_optimization import QuadraticProgram
+        from qiskit_optimization.algorithms import MinimumEigenOptimizer
+        from qiskit.primitives import Sampler
+        return QAOA, COBYLA, QuadraticProgram, MinimumEigenOptimizer, Sampler
+    except ImportError:
+        _maybe_extend_sys_path_from_local_venv()
+        try:
+            from qiskit_algorithms import QAOA
+            from qiskit_algorithms.optimizers import COBYLA
+            from qiskit_optimization import QuadraticProgram
+            from qiskit_optimization.algorithms import MinimumEigenOptimizer
+            from qiskit.primitives import Sampler
+            return QAOA, COBYLA, QuadraticProgram, MinimumEigenOptimizer, Sampler
+        except ImportError as exc:
+            raise ValueError(
+                "Qiskit not available for the current interpreter "
+                f"({sys.executable}). Install qiskit or run with ./venv/bin/python."
+            ) from exc
+
+
 def solve_qaoa(
     Q: Sequence[Sequence[float]], max_variables: int = 20, time_budget_s: float = 60.0
 ) -> Tuple[Sequence[int], float, Dict[str, int]]:
@@ -34,14 +72,7 @@ def solve_qaoa(
     maximize work within the provided time budget.
     """
 
-    try:
-        from qiskit_algorithms import QAOA
-        from qiskit_algorithms.optimizers import COBYLA
-        from qiskit_optimization import QuadraticProgram
-        from qiskit_optimization.algorithms import MinimumEigenOptimizer
-        from qiskit.primitives import Sampler
-    except ImportError:
-        raise ValueError("Qiskit not installed; skipping quantum solve")
+    QAOA, COBYLA, QuadraticProgram, MinimumEigenOptimizer, Sampler = _load_qiskit_components()
 
     num_vars = len(Q)
     if any(len(row) != num_vars for row in Q):
