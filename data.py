@@ -1,11 +1,12 @@
 # data.py
+# 3-hour scenario tuned to stay tiny for QAOA while keeping an interesting
+# peak/price trade-off (hour 1 spike + mild hour 2 bump).
 
-T = 8  # hours
+T = 3  # hours
 
-price = [0.10, 0.09, 0.08, 0.12, 0.30, 0.35, 0.25, 0.11]
-demand = [120, 130, 150, 170, 200, 210, 180, 140]
+price = [0.05, 0.35, 0.09]
+demand = [100, 230, 120]
 
-E_MAX = 100    # kWh
-P_MAX = 50     # kW
-SOC_0 = 50     # kWh
-
+E_MAX = 60     # kWh
+P_MAX = 20     # kW
+SOC_0 = 40     # kWh

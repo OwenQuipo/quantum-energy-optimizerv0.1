@@ -41,14 +41,19 @@ classical layer computes the precise bill.
 - `README.md`
 
 ## Running the demo
-The classical path has **no third-party dependencies**; invoke it directly:
+The bundled scenario in `data.py` is a 3-hour toy grid with a single sharp
+price/peak spike. It keeps the QUBO tiny so QAOA fits inside the demo budget
+and typically beats simulated annealing on cost, while brute-force remains the
+ground truth. The classical path has **no third-party dependencies**; invoke it
+directly:
 
 ```
 python run.py
 ```
 
-If Qiskit is installed, a QAOA run will be attempted as well. Otherwise the
-quantum step is skipped with a clear message while the classical result is
-still produced.
+If Qiskit is installed, a QAOA run will be attempted as well. If the QUBO is
+oversized/dense for the demo limits, the quantum step is skipped with a clear
+message while the classical result is still produced (adjust `solve_qaoa`
+limits or the data to force it).
 
 This is an early research-driven prototype.
