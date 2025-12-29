@@ -1,6 +1,8 @@
 # run.py
 from __future__ import annotations
 
+import sys
+import threading
 import warnings
 from typing import Dict, List
 
@@ -43,7 +45,27 @@ def evaluate_schedule(discharge: List[int], charge: List[int] | None) -> Dict[st
 def main(include_charge: bool = False):
     Q, meta = build_qubo_hybrid(price, demand, SOC_0, E_MAX, P_MAX, include_charge=include_charge)
 
-    x_classical, _ = solve_simulated_annealing(Q)
+    progress_event = threading.Event()
+
+    def report_progress(current_step: int, total_steps: int) -> None:
+        percent = (current_step / total_steps) * 100
+        print(f"Progress: {percent:.1f}%")
+
+    def listen_for_enter() -> None:
+        """Watch stdin for Enter presses and request a progress update."""
+
+        for line in sys.stdin:
+            if line.strip() == "":
+                progress_event.set()
+
+    listener = threading.Thread(target=listen_for_enter, daemon=True)
+    listener.start()
+
+    print("Press Enter at any time to display the current progress...")
+
+    x_classical, _ = solve_simulated_annealing(
+        Q, progress_event=progress_event, progress_reporter=report_progress
+    )
     decoded_classical = decode_solution(x_classical, meta)
 
     try:
