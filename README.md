@@ -30,13 +30,13 @@ This makes them a natural fit for quantum optimization methods, rather than
 continuous relaxations or heuristic rules.
 
 ## Repository structure
-quantum-battery/
-├── data.py # Hardcoded example scenario
-├── qubo.py # QUBO construction (quantum-native core)
-├── solve_classical.py # Brute-force solver for verification
-├── solve_quantum.py # QAOA-based solver using Qiskit
-├── run.py # Entry point
-└── README.md
+#### quantum-battery/
+#### data.py # Hardcoded example scenario
+#### qubo.py # QUBO construction (quantum-native core)
+#### solve_classical.py # Brute-force solver for verification
+#### solve_quantum.py # QAOA-based solver using Qiskit
+#### run.py # Entry point
+#### README.md
 
 ## Status
 - v0.1: working quantum + classical agreement on small horizons
